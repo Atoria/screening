@@ -33,7 +33,7 @@ class ScreeningController extends Controller
     {
         $data = $request->validated();
 
-        $screening = $this->screeningService->createFromData($data);
+        $screening = ScreeningResource::make($this->screeningService->createFromData($data));
 
         return view('screenings.show', compact('screening'));
     }

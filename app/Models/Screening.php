@@ -5,10 +5,13 @@ namespace App\Models;
 use App\Enums\CohortEnum;
 use App\Enums\HeadacheFrequencyEnum;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Screening extends Model
 {
+    use HasFactory;
+
     public const AGE_LIMIT = 18;
 
     protected $fillable = [

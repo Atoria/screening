@@ -7,7 +7,6 @@ use App\Enums\HeadacheFrequencyEnum;
 
 class ScreeningService
 {
-
     public function createFromData(array $data): Screening
     {
         $headacheFrequency = HeadacheFrequencyEnum::from($data['headache_frequency']);
