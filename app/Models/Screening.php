@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Screening extends Model
 {
-    private const AGE_LIMIT = 18;
+    public const AGE_LIMIT = 18;
+
     protected $fillable = [
         'first_name',
         'date_of_birth',
@@ -19,6 +20,7 @@ class Screening extends Model
 
     protected $casts = [
         'date_of_birth' => 'date',
+        'headache_frequency' => HeadacheFrequencyEnum::class,
     ];
 
 
@@ -34,7 +36,7 @@ class Screening extends Model
         return $this->date_of_birth && $this->age >= self::AGE_LIMIT;
     }
 
-    public function getEligibleAttribute($value): bool
+    public function getEligibleAttribute(): bool
     {
         return $this->isEligible();
     }
@@ -45,15 +47,14 @@ class Screening extends Model
             return null;
         }
 
-        if (in_array($this->headache_frequency, [HeadacheFrequencyEnum::MONTHLY->value, HeadacheFrequencyEnum::WEEKLY->value])) {
-            return CohortEnum::A->value;
-        }
+        /** @var HeadacheFrequencyEnum $frequency */
+        $frequency = $this->headache_frequency;
 
-        if ($this->headache_frequency === HeadacheFrequencyEnum::DAILY->value) {
-            return CohortEnum::B->value;
-        }
-
-        return null;
+        return match ($frequency) {
+            HeadacheFrequencyEnum::MONTHLY,
+            HeadacheFrequencyEnum::WEEKLY => CohortEnum::A->value,
+            HeadacheFrequencyEnum::DAILY => CohortEnum::B->value,
+        };
     }
 
     public function getResultMessageAttribute(): string
@@ -64,15 +65,10 @@ class Screening extends Model
 
         $cohort = $this->cohort;
 
-        if ($cohort === CohortEnum::A->value) {
-            return "Participant {$this->first_name} is assigned to Cohort A";
-        }
-
-        if ($cohort === CohortEnum::B->value) {
-            return "Candidate {$this->first_name} is assigned to Cohort B";
-        }
-
-        return '';
+        return match ($cohort) {
+            CohortEnum::A->value => "Participant {$this->first_name} is assigned to Cohort A",
+            CohortEnum::B->value => "Candidate {$this->first_name} is assigned to Cohort B",
+            default => '',
+        };
     }
-
 }
